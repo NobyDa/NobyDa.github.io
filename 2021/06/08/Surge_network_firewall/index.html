@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>使用Surge脚本 &amp; 逻辑规则建立联网防火墙 - NobyDa&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="NobyDa&#039;s Blog"><meta name="msapplication-TileImage" content="img/avatar.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="NobyDa&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="前言 本文仅建议对Surge(iOS) APP有一定熟悉的用户阅读. 如您从未使用过, 则该文可能不适合您.  本文主要内容为 “手机APP(iOS) 隐私泄漏” 问题以及解决方案.  本文将会耗费大量篇幅讲解Surge脚本或Surge逻辑规则的运用、科普、 实现、以及原理, 并建立手机网络防火墙."><meta property="og:type" content="blog"><meta property="og:title" content="使用Surge脚本 &amp; 逻辑规则建立联网防火墙"><meta property="og:url" content="https://nobyda.github.io/2021/06/08/Surge_network_firewall/"><meta property="og:site_name" content="NobyDa&#039;s Blog"><meta property="og:description" content="前言 本文仅建议对Surge(iOS) APP有一定熟悉的用户阅读. 如您从未使用过, 则该文可能不适合您.  本文主要内容为 “手机APP(iOS) 隐私泄漏” 问题以及解决方案.  本文将会耗费大量篇幅讲解Surge脚本或Surge逻辑规则的运用、科普、 实现、以及原理, 并建立手机网络防火墙."><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://nobyda.github.io/gallery/Surge_network_firewall.jpg"><meta property="article:published_time" content="2021-06-08T13:11:17.000Z"><meta property="article:modified_time" content="2021-06-08T15:39:12.378Z"><meta property="article:author" content="NobyDa"><meta property="article:tag" content="Surge"><meta property="article:tag" content="JavaScript"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/gallery/Surge_network_firewall.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://nobyda.github.io/2021/06/08/Surge_network_firewall/"},"headline":"NobyDa","image":["https://nobyda.github.io/gallery/Surge_network_firewall.jpg"],"datePublished":"2021-06-08T13:11:17.000Z","dateModified":"2021-06-08T15:39:12.378Z","author":{"@type":"Person","name":"NobyDa"},"publisher":{"@type":"Organization","name":"NobyDa's Blog","logo":{"@type":"ImageObject","url":"https://nobyda.github.io/2021/06/08/Surge_network_firewall/img/logo.svg"}},"description":"前言 本文仅建议对Surge(iOS) APP有一定熟悉的用户阅读. 如您从未使用过, 则该文可能不适合您.  本文主要内容为 “手机APP(iOS) 隐私泄漏” 问题以及解决方案.  本文将会耗费大量篇幅讲解Surge脚本或Surge逻辑规则的运用、科普、 实现、以及原理, 并建立手机网络防火墙."}</script><link rel="canonical" href="https://nobyda.github.io/2021/06/08/Surge_network_firewall/"><link rel="icon" href="/img/avatar.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css"><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 5.4.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="NobyDa&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-9-desktop is-9-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/gallery/Surge_network_firewall.jpg" alt="使用Surge脚本 &amp; 逻辑规则建立联网防火墙"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2021-06-08T13:11:17.000Z" title="2021/6/8 21:11:17">2021-06-08</time>发表</span><span class="level-item"><time dateTime="2021-06-08T15:39:12.378Z" title="2021/6/8 23:39:12">2021-06-08</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/APP%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/">APP高级使用技巧</a><span> / </span><a class="link-muted" href="/categories/APP%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/Surge/">Surge</a></span><span class="level-item">36 分钟读完 (大约5458个字)</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span> 次浏览</span></div></div><h1 class="title is-3 is-size-4-mobile">使用Surge脚本 &amp; 逻辑规则建立联网防火墙</h1><div class="content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a><strong>前言</strong></h2><ol>
+<li><p>本文仅建议对<a target="_blank" rel="noopener" href="https://apps.apple.com/us/app/surge-4/id1442620678">Surge(iOS)</a> APP有一定<strong>熟悉</strong>的用户阅读. 如您从未使用过, 则该文可能不适合您.</p>
+</li>
+<li><p>本文主要内容为 “<strong>手机APP(iOS) 隐私泄漏</strong>” 问题以及解决方案.</p>
+</li>
+<li><p>本文将会耗费大量篇幅讲解Surge脚本或Surge逻辑规则的运用、科普、 实现、以及原理, 并建立<strong>手机网络防火墙.</strong></p>
+<span id="more"></span></li>
+</ol>
+<hr>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a><strong>背景</strong></h2><p>有一个话题引起了我的关注, 一些国内APP (iOS), 如: X信, XX宝, X团.</p>
+<p>用户安装以上APP后, 手机从蜂窝网络切换至WiFi的一瞬间(包括自动连接), 以上APP<strong>可能会</strong>利用iOS某个系统接口直接<strong>后台唤醒</strong>, 并向服务器<strong>上传</strong>网络请求, 经过抓包后发现, 该类请求都隶属于以上APP (查询<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/135372161">ASN</a>得知), 并且都经过强加密, 无法得知上传内容.</p>
+<p>以上情况不管用户是否<strong>关闭后台</strong>或<strong>关闭后台刷新</strong>, 都有<strong>可能</strong>会触发. 如果用户手动打开系统设置查看WiFi列表, 也<strong>可能会</strong>触发以上APP的某些联网请求.</p>
+<ul>
+<li>该类网络请求<strong>可能会</strong>上传:</li>
+</ul>
+<ol>
+<li>WiFi名称 (SSID)</li>
+<li>定位数据</li>
+<li>接入或断开WiFi的时间</li>
+</ol>
+<p>以上基于常识推断; 由于笔者非iOS开发者, 无法得知APP在该情况下具有的权限, 不对的还请指正.</p>
+<ul>
+<li>企业对该数据<strong>可能会</strong>:</li>
+</ul>
+<ol>
+<li>出售或共享, 建立大数据</li>
+<li>推断出你的作息规律, 几点几分离开家/到公司, 并建立用户画像</li>
+<li>基于以上两点精准推送广告</li>
+</ol>
+<p>以上为背景介绍</p>
+<hr>
+<h2 id="应对"><a href="#应对" class="headerlink" title="应对"></a><strong>应对</strong></h2><ul>
+<li>借助Surge强大的脚本和规则系统, 目前有两种解决方案</li>
+</ul>
+<h3 id="方案一概括"><a href="#方案一概括" class="headerlink" title="方案一概括"></a><strong>方案一概括</strong></h3><p>APP关闭时(后台), 完全拦截手机所有APP联网请求; APP开启时(前台), 放行所有APP联网请求. (只允许用户主动开启APP表示我需要用到它,否则不允许乱联网)</p>
+<h3 id="方案二概括"><a href="#方案二概括" class="headerlink" title="方案二概括"></a><strong>方案二概括</strong></h3><p>手机从蜂窝网络切换至WiFi(手动/自动)的瞬间, 15秒内拦截所有APP联网请求(前台/后台), 15秒后恢复</p>
+<p>该方案提供<strong>懒人Surge模块一键配置</strong>, 具体可查看本文<a href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88%E4%BA%8C">实现方案二</a>章节</p>
+<ul>
+<li>为了使读者更好的理解, 本文将会极其详细的描述以上两种方案里每一步的原理以及配置, 供读者参考.</li>
+</ul>
+<hr>
+<h2 id="实现方案一"><a href="#实现方案一" class="headerlink" title="实现方案一"></a><strong>实现方案一</strong></h2><p><strong>需求:</strong></p>
+<ol>
+<li><p>打开手机内任何一个APP时(前台), 放行网络请求</p>
+</li>
+<li><p>关闭任何一个APP时(后台), 拦截所有请求</p>
+</li>
+<li><p>拦截的请求可以设置白名单</p>
+</li>
+</ol>
+<p><strong>有两种思路:</strong></p>
+<ol>
+<li><p><strong>捷径自动化</strong>触发, 当<strong>打开/关闭APP</strong>时, 运行捷径, 捷径内容为调用SurgeAPI(开启/关闭)模块, 模块内容为: <strong>拒绝所有网络请求和白名单在内的规则</strong></p>
+</li>
+<li><p><strong>捷径自动化</strong>触发, 当<strong>打开/关闭APP</strong>时, 运行捷径, 捷径内容为运行Surge脚本, 脚本内容为: 储存当前APP状态(<strong>打开/关闭</strong>), 再使用Surge<strong>逻辑规则</strong>和<strong>脚本规则</strong>共同决定网络请求是否需要拦截</p>
+</li>
+</ol>
+<p><strong>由于Surge模块的特殊性, 开启/关闭模块时, 会导致:</strong></p>
+<ol>
+<li><p>触发重载配置 (有概率VPN断连)</p>
+</li>
+<li><p>丢失DNS缓存(TTL), 严重影响规则匹配效率</p>
+</li>
+<li><p>可能会打断活动的网络连接 (下载中断)</p>
+</li>
+</ol>
+<p>基于以上弊端, 本文将跳过(开启/关闭)模块的实现方式.</p>
+<hr>
+<h3 id="第一步-配置捷径脚本"><a href="#第一步-配置捷径脚本" class="headerlink" title="第一步: 配置捷径脚本"></a><strong>第一步: 配置捷径脚本</strong></h3><ul>
+<li>Surge内<strong>新建Cron类型</strong>脚本, <strong>Cron</strong>表达式填写 0 0 1 1 * 脚本名暂且设置为“APP防火墙”, 编辑并填入以下脚本, 保存后将该Cron脚本<strong>禁用</strong>(左划)</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>APP防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> data = $intent.parameter;<br><span class="hljs-keyword">const</span> write = $persistentStore.write(data, <span class="hljs-string">&quot;APP_BJ&quot;</span>);<br>$done();<br></code></pre></td></tr></table></figure>
+
+<hr>
+<div class="notification is-warning">
+<p><strong>以下为科普脚本代码的具体用途及原理, 请选择性阅读.</strong></p>
+</div>
+
+<figure class="highlight javascript"><figcaption><span>APP防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> data = $intent.parameter;<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为data的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为$intent.parameter, 该API实际<strong>内容</strong>为读取Surge捷径<strong>运行后</strong>传入的<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html"><strong>字符串</strong></a><strong>;</strong> 如果Surge捷径的参数留空, 则该API实际内容为<strong>空</strong><a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html"><strong>字符串</strong></a></p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>APP防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> write = $persistentStore.write(data, <span class="hljs-string">&quot;APP_BJ&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为write的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为Surge的<strong>内部函数</strong>, 该<strong>函数</strong>的实际<strong>用途</strong>为<strong>持久化储存,</strong> 接受2个参数, 需要写入的数据(<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型), 以及一个固定的读取键(<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型)</p>
+<p>该行用途: <strong>写入</strong>(储存)上一行代码中名为data的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>的值, 读取键为”APP_BJ”</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>APP防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$done();<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge<strong>内部函数</strong>, 该函数的实际用途为退出脚本执行; 使用Surge执行脚本时, 该API不可省略.</p>
+<hr>
+<h3 id="第二步-配置捷径自动化"><a href="#第二步-配置捷径自动化" class="headerlink" title="第二步: 配置捷径自动化"></a><strong>第二步: 配置捷径自动化</strong></h3><ol>
+<li><code>打开”捷径”</code> &gt; <code>自动化</code> &gt; <code>加号</code> &gt; <code>创建个人自动化</code> &gt; <code>APP</code> &gt; <code>选取”已打开” </code>&gt; <code>手动选取除了”设置”外的所有APP</code> &gt; <code>添加操作, 搜索”Surge”, 选取运行脚本</code> &gt; <code>展开</code> &gt; <code>脚本名为前面设置的”APP防火墙”, 参数留空</code> &gt; <code>下一步</code> &gt; <code>关闭”运行前询问”</code> &gt; <code>完成</code></li>
+<li><code>重复第1步的过程, 不同的是, 需要选取APP已关闭时运行捷径, 并且需要把Surge动作里的参数填写 1 (重要)</code></li>
+</ol>
+<p><img src="/2021/06/08/Surge_network_firewall/shortcut.png"></p>
+<hr>
+<h3 id="第三步-配置规则脚本"><a href="#第三步-配置规则脚本" class="headerlink" title="第三步: 配置规则脚本"></a><strong>第三步: 配置规则脚本</strong></h3><ul>
+<li>Surge内<strong>新建Rule类型</strong>脚本, 脚本名暂且设置为”RULE防火墙”, 编辑并填入以下脚本并保存</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>RULE防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> read = $persistentStore.read(<span class="hljs-string">&quot;APP_BJ&quot;</span>);<br>$done(&#123; <span class="hljs-attr">matched</span>: <span class="hljs-built_in">Boolean</span>(read) &#125;);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<div class="notification is-warning">
+<p><strong>以下为科普脚本代码的具体用途及原理, 请选择性阅读.</strong></p>
+</div>
+
+<figure class="highlight javascript"><figcaption><span>RULE防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> read = $persistentStore.read(<span class="hljs-string">&quot;APP_BJ&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为read的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为Surge的<strong>内部函数</strong>, 该<strong>函数</strong>的实际用途为<strong>持久化读取</strong>(读取之前所写入的数据), 接受1个参数: 读取键 (<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串类型</a>)</p>
+<p>该行用途: <strong>读取</strong>捷径脚本所写入”APP_BJ”键的持久化数据</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>RULE防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$done(&#123; <span class="hljs-attr">matched</span>: <span class="hljs-built_in">Boolean</span>(read) &#125;);<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge<strong>内部函数</strong>, 该<strong>函数</strong>的实际用途为<strong>退出脚本执行,</strong> 由于是<strong>Rule脚本</strong>(使用脚本进行规则判定), 需要额外返回一个<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer">对象键值对</a>，对象属性键为 matched,  值为布尔值(true/false)表示是否匹配该规则; 在当前代码中, JS内部函数<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean()</a>用于转换布尔值</p>
+<p>该行用途: 退出脚本并判断是否匹配规则, 如果<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>的数据(捷径脚本所写入的数据), 能够转换为true, 则返回true(<strong>匹配规则</strong>)<strong>,</strong> 否则返回false(<strong>不匹配规则</strong>)</p>
+<hr>
+<h3 id="第四步-配置逻辑规则"><a href="#第四步-配置逻辑规则" class="headerlink" title="第四步: 配置逻辑规则"></a><strong>第四步: 配置逻辑规则</strong></h3><h4 id="规则定义"><a href="#规则定义" class="headerlink" title="规则定义"></a><strong>规则定义</strong></h4><hr>
+<ul>
+<li><strong>逻辑规则可将多个规则相互嵌套(包含逻辑规则), 用于复杂的规则判断.</strong></li>
+</ul>
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">AND, ((#子规则1), (#子规则2), (#子规则3)), Policy<br></code></pre></td></tr></table></figure>
+
+<p>AND运算符表示: 如果所有子规则<strong>都匹配</strong>，则该规则匹配</p>
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">OR, ((#子规则1), (#子规则2), (#子规则3)), Policy<br></code></pre></td></tr></table></figure>
+
+<p>OR运算符表示: 如果子规则<strong>其中一个</strong>匹配，则该规则匹配</p>
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">NOT, ((#子规则)), Policy<br></code></pre></td></tr></table></figure>
+
+<p>NOT运算符表示: 如果子规则<strong>不匹配</strong>，则该规则匹配</p>
+<hr>
+<p>理解以上定义后, 我们可以使用<strong>逻辑规则</strong>和<strong>脚本规则</strong>共同决定网络请求是否需要拦截, 并设置白名单</p>
+<hr>
+<h4 id="配置规则"><a href="#配置规则" class="headerlink" title="配置规则"></a><strong>配置规则</strong></h4><ul>
+<li><strong>编辑Surge配置文件, 在[Rule]段落放入以下逻辑规则:</strong></li>
+</ul>
+<figure class="highlight plaintext"><figcaption><span>[Rule]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs null">AND,((NOT,((OR,((USER-AGENT,Surge*), (RULE-SET,https://raw.githubusercontent.com/NobyDa/Script/master/Surge/Apple.list))))), (SCRIPT,RULE防火墙)),REJECT<br></code></pre></td></tr></table></figure>
+
+<p>以上逻辑规则已包含Apple/Surge白名单(匹配后放行), 可匹配绝大多数系统App或Surge自身发送的请求</p>
+<ul>
+<li><strong>可自行配置白名单规则:</strong></li>
+</ul>
+<p><code>Surge内点击该AND规则</code> &gt; <code>NOT</code> &gt; <code>OR</code> &gt; <code>新增</code> &gt;  <code>添加规则或规则集</code> &gt; <code>完成</code></p>
+<ul>
+<li><strong>网络请求经过Surge规则系统时, 该规则判断逻辑:</strong> </li>
+</ul>
+<p><img src="/2021/06/08/Surge_network_firewall/a-plan.png"></p>
+<ul>
+<li><strong>至此, 已实现方案一需求:</strong></li>
+</ul>
+<ol>
+<li>打开手机内任何一个APP时(前台), 放行网络请求</li>
+<li>关闭任何一个APP时(后台), 拦截所有请求</li>
+<li>拦截的请求可以设置白名单</li>
+</ol>
+<hr>
+<h3 id="方案一-注意事项"><a href="#方案一-注意事项" class="headerlink" title="方案一: 注意事项"></a><strong>方案一: 注意事项</strong></h3><ul>
+<li>该方案仅针对有<strong>特殊需求</strong>的用户设计, 一般用户不应该使用.  因为会产生各种副作用, 包括但不限于:</li>
+</ul>
+<ol>
+<li>iOS14桌面/负一屏小组件无法联网</li>
+<li>Surge后台定时脚本任务无法联网</li>
+<li>基于主屏幕的Web, 例如<a target="_blank" rel="noopener" href="https://github.com/chavyleung/scripts">BoxJS</a>、<a target="_blank" rel="noopener" href="https://github.com/Peng-YM/Sub-Store">Sub-Store</a> 无法联网</li>
+<li><strong>低版本iOS系统</strong>或<strong>老旧机型</strong>打开APP时,可能会无法触发捷径自动化进而造成APP无法联网</li>
+</ol>
+<p>前三点虽然可以抓取请求配置规则白名单, 但相对来说比较麻烦.</p>
+<ul>
+<li><strong>捷径通知</strong></li>
+</ul>
+<p>当我们设定 iOS 捷径内的「个人自动化」功能时, 虽然可以关闭 “运行前询问” 但是当自动化脚本开始执行时, 系统会通知提醒自动化已开始执行. 如果不想每次都收到这种通知, 那么我们其实可以通过一个系统BUG来关闭, 具体可<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/450332360">点击此处查看</a>具体方法; 有一点需要注意, 捷径通知关闭后如果运行的<strong>捷径</strong>里包含<strong>通知动作,</strong> 则该捷径将直接中断.</p>
+<hr>
+<h2 id="实现方案二"><a href="#实现方案二" class="headerlink" title="实现方案二"></a><strong>实现方案二</strong></h2><p>由于方案一过于暴力, 方案二应运而生. 该方案主要为本文的<strong>中心需求</strong>.</p>
+<p><strong>需求:</strong></p>
+<ol>
+<li><p>从蜂窝网络连接WiFi的瞬间, 15秒内拦截所有请求, 15秒后放行网络请求</p>
+</li>
+<li><p>拦截的请求可以设置白名单</p>
+</li>
+</ol>
+<p><strong>思路:</strong></p>
+<ul>
+<li>网络环境改变时, 触发运行Surge事件(Event)类型脚本, 脚本内容为: 如果从蜂窝网络切换至WiFi, 则写入当前时间戳数据, 再使用<strong>逻辑规则</strong>和<strong>脚本规则</strong>共同决定15秒内的网络请求是否需要拦截</li>
+<li></li>
+</ul>
+<p>该方案完全基于Surge, 如果您 “<strong>不想了解具体原理</strong>“ 或者 “<strong>想跳过繁琐的配置</strong>“, 可使用懒人Surge模块一键配置, 模块地址: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">https://gist.githubusercontent.com/NobyDa/fb026a6d01fec146bd451d01b0c973d5/raw/NetworkFirewall.sgmodule<br></code></pre></td></tr></table></figure>
+
+<p>已包含Apple/Surge白名单(匹配后放行)</p>
+<hr>
+<h3 id="第一步-配置事件脚本"><a href="#第一步-配置事件脚本" class="headerlink" title="第一步: 配置事件脚本"></a><strong>第一步: 配置事件脚本</strong></h3><ul>
+<li>Surge内<strong>新建Event类型</strong>脚本, 脚本名暂且设置为 “WIFI防火墙” , 事件名设置为 “network-changed” , 编辑并填入以下脚本并保存</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> network = $network.wifi.ssid;<br><span class="hljs-keyword">const</span> currentTime = <span class="hljs-built_in">Date</span>.now();<br><br>$httpAPI(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-string">&quot;v1/traffic&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-function">(<span class="hljs-params">body</span>) =&gt;</span> &#123;<br>  <span class="hljs-keyword">if</span> (network &amp;&amp; (currentTime / <span class="hljs-number">1000</span>) - body.startTime &gt;= <span class="hljs-number">3</span>) &#123;<br>    <span class="hljs-keyword">const</span> time = <span class="hljs-built_in">JSON</span>.stringify(currentTime);<br>    <span class="hljs-keyword">const</span> addTime = $persistentStore.write(time, <span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br>    $notification.post(<span class="hljs-string">&#x27;防火墙开始拦截&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">`已从蜂窝网络切换至 <span class="hljs-subst">$&#123;network&#125;</span>`</span>);<br>  &#125;<br>  $done();<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<div class="notification is-warning">
+<p><strong>以下为科普脚本代码的具体用途及原理, 请选择性阅读.</strong></p>
+</div>
+
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> network = $network.wifi.ssid;<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为network的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为Surge内部API, 该$network实际<strong>内容</strong>为当前网络状态的<strong>总览.</strong> (加入.wifi.ssid则表示仅提取当前<strong>WIFI名称</strong>)</p>
+<p>该行用途: 事件脚本运行后读取当前网络的WIFI名称</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> currentTime = <span class="hljs-built_in">Date</span>.now();<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为currentTime的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为JS中的内部函数, 该函数返回<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a></p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$httpAPI(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-string">&quot;v1/traffic&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-function">(<span class="hljs-params">body</span>) =&gt;</span> &#123; ... &#125;)<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge<strong>内部函数</strong>并传入四个参数(<strong>method</strong>: String, <strong>path</strong>: String, <strong>body</strong>: Object, <strong>callback</strong>: Function), 该$httpAPI暂时没有官方文档, 但与HTTP API用法类似, 具体可查看<a target="_blank" rel="noopener" href="https://manual.nssurge.com/others/http-api.html">HTTP API官方文档</a></p>
+<p>该行用途: 由于Surge每次开启VPN时, 都会触发一次network-changed事件脚本, 为了避免错误触发导致的问题, 以上$httpAPI回调的参数将返回开启VPN的时间, 用于稍后的判断</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">if</span> (network &amp;&amp; (currentTime / <span class="hljs-number">1000</span>) - body.startTime &gt;= <span class="hljs-number">3</span>) &#123; ... &#125;<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 表示条件语句块; 我们经常需要根据不同条件来执行不同的代码, 以上条件语句可以实现这一点.</p>
+<p>该行用途: 脚本运行后, 如果当前为<strong>WiFi环境</strong> 并且”<strong>当前时间</strong>“ <strong>减</strong> “<strong>开启VPN时间</strong>“ 大于等于3秒, 则执行花括号内{ … }的代码, 否则跳过</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> time = <span class="hljs-built_in">JSON</span>.stringify(currentTime);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为time的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为JS中的内部函数, 该函数实际用途为”将<strong>对象</strong>或<strong>值</strong>转换为JSON字符串”; 在当前代码中, 表示转换名为currentTime的常量 (<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>)</p>
+<p>该行用途: 读取声明的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>(数字类型), 并将它转换成<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型, 便于储存</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> addTime = $persistentStore.write(time, <span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为addTime的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>, 值为Surge的<strong>内部函数</strong>, 该<strong>函数</strong>的实际<strong>用途</strong>为<strong>持久化储存,</strong> 接受2个参数, 需要写入的数据(<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型), 以及一个固定的读取键(<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型)</p>
+<p>该行用途: <strong>写入</strong>(储存)名为time<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>的值(<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>), 读取键为”WiFi_Timer”</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$notification.post(<span class="hljs-string">&#x27;防火墙开始拦截&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">`已从蜂窝网络切换至 <span class="hljs-subst">$&#123;network&#125;</span>`</span>);<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge内部函数推送一个Surge通知, 并传入三个参数, 分别为标题, 副标题, 内容. 三个参数仅接受<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>WIFI防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$done();<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge内部函数, 该Surge<strong>函数</strong>的实际用途为<strong>退出脚本执行</strong>; 使用Surge执行脚本时, 该API不可省略.</p>
+<hr>
+<h3 id="第二步-配置规则脚本"><a href="#第二步-配置规则脚本" class="headerlink" title="第二步: 配置规则脚本"></a><strong>第二步: 配置规则脚本</strong></h3><ul>
+<li>Surge内<strong>新建Rule类型</strong>脚本, 脚本名暂且设置为”TIME防火墙”, 编辑并填入以下脚本并保存</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">let</span> block = &#123; <span class="hljs-attr">matched</span>: <span class="hljs-literal">false</span> &#125;;<br><span class="hljs-keyword">const</span> readTimer = $persistentStore.read(<span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br><span class="hljs-keyword">if</span> (readTimer) &#123;<br>  <span class="hljs-keyword">const</span> currentTime = <span class="hljs-built_in">Date</span>.now();<br>  <span class="hljs-keyword">const</span> markTime = <span class="hljs-built_in">parseInt</span>(readTimer);<br>  <span class="hljs-keyword">if</span> (currentTime - markTime &lt;= <span class="hljs-number">15000</span>) &#123;<br>    block.matched = <span class="hljs-literal">true</span>;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">const</span> delTime = $persistentStore.write(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br>  &#125;<br>&#125;<br>$done(block);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<div class="notification is-warning">
+<p><strong>以下为科普脚本代码的具体用途及原理, 请选择性阅读.</strong></p>
+</div>
+
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">let</span> block = &#123; <span class="hljs-attr">matched</span>: <span class="hljs-literal">false</span> &#125;;<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为block的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/let"><strong>变量</strong></a>, 并<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer">初始化对象</a></p>
+<p>该行用途: 由于是<strong>Rule脚本</strong>(使用脚本进行规则判定), 脚本结束时需要额外返回一个<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer">对象键值对</a>表示是否匹配该规则; 此处是为了节省代码(重复段), 避免多次使用$done. 初始化的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer">对象键值对</a>默认为false(<strong>不匹配</strong>规则), 如果重新赋值(改变)为true则<strong>匹配</strong>规则</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> readTimer = $persistentStore.read(<span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为readTimer的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const"><strong>常量</strong></a>, 值为Surge的<strong>内部函数</strong>, 该<strong>函数</strong>的实际用途为<strong>读取</strong>之前所写入的数据, 接受1个参数: 读取键(<a target="_blank" rel="noopener" href="https://www.runoob.com/js/js-strings.html">字符串</a>类型)</p>
+<p>该行用途: <strong>读取</strong>事件脚本所写入”WiFi_Timer”键的持久化数据(<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>)</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">if</span> (readTimer) &#123; ... &#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果名为readTimer的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const">常量</a>可以转换成true(有<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>), 则执行花括号内{ … }的代码, 否则跳过</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> currentTime = <span class="hljs-built_in">Date</span>.now();<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为currentTime的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const"><strong>常量</strong></a>, 值为JS的<strong>内部函数</strong>, 该<strong>函数</strong>实际的值为<strong>当前</strong><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>(数字类型)</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> markTime = <span class="hljs-built_in">parseInt</span>(readTimer);<br></code></pre></td></tr></table></figure>
+
+<p>在JS语法中, 声明一个名为markTime的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/const"><strong>常量</strong></a>, 值为JS的<strong>内部函数</strong>, 该函数在当前代码中的实际用途为 将”字符串” 转换成 “数字”类型, (转换名为readTimer常量的值)</p>
+<p>该行用途: 读取事件脚本所写入的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a>, 并将它转换成数字类型, 便于判断</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">if</span> (currentTime - markTime &lt;= <span class="hljs-number">15000</span>) &#123; <span class="hljs-comment">//代码块1</span><br>    <span class="hljs-comment">//重新赋值(改变)block变量中matched键的值, true表示匹配规则</span><br>    block.matched = <span class="hljs-literal">true</span>; <br>&#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">//代码块2</span><br>    <span class="hljs-comment">//清除事件脚本所写入的Unix时间戳</span><br>    <span class="hljs-keyword">const</span> delTime = $persistentStore.write(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;WiFi_Timer&quot;</span>);<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果<strong>当前</strong><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a> <strong>减</strong> 事件脚本所保存的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now">Unix时间戳</a> 小于等于15000毫秒(15秒), 则执行<strong>代码块1</strong>的代码: 否则则执行<strong>代码块2</strong>的代码</p>
+<hr>
+<figure class="highlight javascript"><figcaption><span>TIME防火墙.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">$done(block);<br></code></pre></td></tr></table></figure>
+
+<p>立即调用Surge<strong>内部函数</strong>, 该<strong>函数</strong>的实际用途为<strong>退出脚本执行,</strong> 并返回block变量(脚本第一行)表示是否匹配规则</p>
+<hr>
+<h3 id="第三步-配置逻辑规则"><a href="#第三步-配置逻辑规则" class="headerlink" title="第三步: 配置逻辑规则"></a><strong>第三步: 配置逻辑规则</strong></h3><p>规则定义在方案一中的<a href="#%E8%A7%84%E5%88%99%E5%AE%9A%E4%B9%89">配置逻辑规则</a>章节里有详细描述, 这里不再赘述</p>
+<ul>
+<li><strong>编辑Surge配置文件, 在[Rule]段落放入以下逻辑规则:</strong></li>
+</ul>
+<figure class="highlight plaintext"><figcaption><span>[Rule]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs null">AND,((NOT,((OR,((USER-AGENT,Surge*), (RULE-SET,https://raw.githubusercontent.com/NobyDa/Script/master/Surge/Apple.list))))), (SCRIPT,TIME防火墙)),REJECT<br></code></pre></td></tr></table></figure>
+
+<p>以上逻辑规则已包含Apple/Surge白名单(匹配后放行), 可匹配绝大多数系统App或Surge自身发送的请求</p>
+<ul>
+<li><strong>可自行配置白名单规则:</strong></li>
+</ul>
+<p><code>Surge内点击该AND规则</code> &gt; <code>NOT</code> &gt; <code>OR</code> &gt; <code>新增</code> &gt;  <code>添加规则或规则集</code> &gt; <code>完成</code></p>
+<ul>
+<li><strong>网络请求经过Surge规则系统时, 该规则判断逻辑:</strong></li>
+</ul>
+<p><img src="/2021/06/08/Surge_network_firewall/b-plan.png"></p>
+<ul>
+<li><strong>至此, 已实现方案二需求:</strong></li>
+</ul>
+<ol>
+<li>从蜂窝网络连接WiFi的瞬间, 15秒内拦截所有请求, 15秒后放行网络请求</li>
+<li>拦截的请求可以设置白名单</li>
+</ol>
+<hr>
+<h3 id="方案二-注意事项"><a href="#方案二-注意事项" class="headerlink" title="方案二: 注意事项"></a><strong>方案二: 注意事项</strong></h3><ul>
+<li>该方案相对来说比较收敛, 配置后对正常使用几乎没有影响, 适合大多数有隐私需求的用户, 但有几点需要注意:</li>
+</ul>
+<ol>
+<li>如果您的WIFI路由器信号<strong>不稳定</strong>, 则可能会错误触发<strong>事件脚本</strong>导致间歇性断网.</li>
+<li>从WiFi切换至蜂窝可能会触发<strong>事件脚本</strong>导致断网. (小概率)</li>
+<li>从蜂窝切换至WiFi的瞬间, <strong>可能会</strong>漏掉极少部分网络请求, 导致极少部分的网络请求拦截失败.</li>
+<li><strong>无法阻止</strong>手动打开系统设置查看WiFi列表所触发的网络请求.</li>
+</ol>
+<p>前3点是Surge自身触发<strong>事件脚本</strong>的逻辑所决定的, 无法改进; 如果您在意, 可以选择<strong>同时配置</strong>方案一和方案二, 以掌握绝对的APP联网权限.</p>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a><strong>结语</strong></h2><p>本文内容相对来说比较硬核, 所列出的只是极其小众的需求, 非科班出身的同学可能会有理解障碍, 但完全理解后你会发现非常有意思. </p>
+<p>Surge脚本规则执行效率极高, 在笔者的测试环境中(iPhone12), 绝大多数网络请求经过<strong>逻辑规则</strong>+<strong>脚本规则</strong>仅耗时5ms以内, 某些复杂请求可能会在10ms以内, 基本不必担心因使用脚本规则而带来的性能问题.</p>
+<p>文章内的需求仅仅只是Surge高级用法的其中之一; 借助Surge进行全面的网络接管并使用捷径、规则、脚本可以建立出无限可能性.</p>
+<p>数据时代, 隐私安全将会带来巨大挑战, 而在中国, 有这样的一种软件, 不绑定手机将无法使用或受到限制; 之后他们发现所有用户都绑定了手机, 然后他们得出一个结论: <strong>中国人更愿意用隐私换取效率.</strong></p>
+<p>这种论调放在一百年前大概就是 “<strong>工人愿意选择工作16个小时, 放弃所有休息时间多赚钱养家糊口</strong>”. 殊不知可悲的是, 很多时候人们并没有别的选择.</p>
+<p><strong>不是我们不在乎隐私, 而是没有能力去抵抗.</strong></p>
+<p>以上</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>使用Surge脚本 &amp; 逻辑规则建立联网防火墙</p><p><a href="https://nobyda.github.io/2021/06/08/Surge_network_firewall/">https://nobyda.github.io/2021/06/08/Surge_network_firewall/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>NobyDa</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2021-06-08</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2021-06-08</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Surge/">Surge</a><a class="link-muted mr-2" rel="tag" href="/tags/JavaScript/">JavaScript</a></div><div class="sharethis-inline-share-buttons"></div><script src="https://platform-api.sharethis.com/js/sharethis.js#property=60bb78906cfa7d00118e7e9e&amp;product=inline-share-buttons" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/img/donates.jpg" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/07/16/BilibiliManga_Js_example/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">记录一次Surge &amp; QuantumultX 脚本开发过程</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/06/06/hello-world/"><span class="level-item">Hello World</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "d575fe1a7d16d35a4e6fb66178d91b20",
+            repo: "NobyDa.github.io",
+            owner: "NobyDa",
+            clientID: "84cc10757e7c7631cf71",
+            clientSecret: "095f8b47cbdb5b1ef38709e44e7186cd951362b9",
+            admin: ["NobyDa"],
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 20,
+            pagerDirection: "first",
+            
+            
+            enableHotKey: true,
+            language: "zh-CN",
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-3-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">目录</h3><ul class="menu-list"><li><a class="level is-mobile" href="#前言"><span class="level-left"><span class="level-item">1</span><span class="level-item">前言</span></span></a></li><li><a class="level is-mobile" href="#背景"><span class="level-left"><span class="level-item">2</span><span class="level-item">背景</span></span></a></li><li><a class="level is-mobile" href="#应对"><span class="level-left"><span class="level-item">3</span><span class="level-item">应对</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#方案一概括"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">方案一概括</span></span></a></li><li><a class="level is-mobile" href="#方案二概括"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">方案二概括</span></span></a></li></ul></li><li><a class="level is-mobile" href="#实现方案一"><span class="level-left"><span class="level-item">4</span><span class="level-item">实现方案一</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#第一步-配置捷径脚本"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">第一步: 配置捷径脚本</span></span></a></li><li><a class="level is-mobile" href="#第二步-配置捷径自动化"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">第二步: 配置捷径自动化</span></span></a></li><li><a class="level is-mobile" href="#第三步-配置规则脚本"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">第三步: 配置规则脚本</span></span></a></li><li><a class="level is-mobile" href="#第四步-配置逻辑规则"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">第四步: 配置逻辑规则</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#规则定义"><span class="level-left"><span class="level-item">4.4.1</span><span class="level-item">规则定义</span></span></a></li><li><a class="level is-mobile" href="#配置规则"><span class="level-left"><span class="level-item">4.4.2</span><span class="level-item">配置规则</span></span></a></li></ul></li><li><a class="level is-mobile" href="#方案一-注意事项"><span class="level-left"><span class="level-item">4.5</span><span class="level-item">方案一: 注意事项</span></span></a></li></ul></li><li><a class="level is-mobile" href="#实现方案二"><span class="level-left"><span class="level-item">5</span><span class="level-item">实现方案二</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#第一步-配置事件脚本"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">第一步: 配置事件脚本</span></span></a></li><li><a class="level is-mobile" href="#第二步-配置规则脚本"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">第二步: 配置规则脚本</span></span></a></li><li><a class="level is-mobile" href="#第三步-配置逻辑规则"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">第三步: 配置逻辑规则</span></span></a></li><li><a class="level is-mobile" href="#方案二-注意事项"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">方案二: 注意事项</span></span></a></li></ul></li><li><a class="level is-mobile" href="#结语"><span class="level-left"><span class="level-item">6</span><span class="level-item">结语</span></span></a></li></ul></div></div><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"></a><p class="is-size-7"><span id="busuanzi_container_site_uv">Visited by <span id="busuanzi_value_site_uv">0</span> users</span><br><span>&copy; 2024 NobyDa's Blog is</span> powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-CN");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

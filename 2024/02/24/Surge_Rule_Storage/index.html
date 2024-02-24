@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>使用Surge规则脚本、快捷指令自动化生成专属规则集 - NobyDa&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="NobyDa&#039;s Blog"><meta name="msapplication-TileImage" content="img/avatar.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="NobyDa&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文为Surge APP规则系统中的高级使用方法，有一定的理解难度。  不知道大家有没有想过，Github 上大佬们分享的大多都是通用规则集，并不一定适合自己，所以有时候就在想，除了特定应用程序的规则，国内域名和国外域名能不能按照自己的网络环境自动生成一份专属规则。"><meta property="og:type" content="blog"><meta property="og:title" content="使用Surge规则脚本、快捷指令自动化生成专属规则集"><meta property="og:url" content="https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/"><meta property="og:site_name" content="NobyDa&#039;s Blog"><meta property="og:description" content="本文为Surge APP规则系统中的高级使用方法，有一定的理解难度。  不知道大家有没有想过，Github 上大佬们分享的大多都是通用规则集，并不一定适合自己，所以有时候就在想，除了特定应用程序的规则，国内域名和国外域名能不能按照自己的网络环境自动生成一份专属规则。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://nobyda.github.io/gallery/Surge_Rule_Storage.png"><meta property="article:published_time" content="2024-02-24T02:30:11.000Z"><meta property="article:modified_time" content="2024-02-24T00:50:12.542Z"><meta property="article:author" content="NobyDa"><meta property="article:tag" content="Surge"><meta property="article:tag" content="JavaScript"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/gallery/Surge_Rule_Storage.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/"},"headline":"NobyDa","image":["https://nobyda.github.io/gallery/Surge_Rule_Storage.png"],"datePublished":"2024-02-24T02:30:11.000Z","dateModified":"2024-02-24T00:50:12.542Z","author":{"@type":"Person","name":"NobyDa"},"publisher":{"@type":"Organization","name":"NobyDa's Blog","logo":{"@type":"ImageObject","url":"https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/img/logo.svg"}},"description":"本文为Surge APP规则系统中的高级使用方法，有一定的理解难度。  不知道大家有没有想过，Github 上大佬们分享的大多都是通用规则集，并不一定适合自己，所以有时候就在想，除了特定应用程序的规则，国内域名和国外域名能不能按照自己的网络环境自动生成一份专属规则。"}</script><link rel="canonical" href="https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/"><link rel="icon" href="/img/avatar.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css"><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 5.4.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="NobyDa&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-9-desktop is-9-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/gallery/Surge_Rule_Storage.png" alt="使用Surge规则脚本、快捷指令自动化生成专属规则集"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-02-24T02:30:11.000Z" title="2024/2/24 10:30:11">2024-02-24</time>发表</span><span class="level-item"><time dateTime="2024-02-24T00:50:12.542Z" title="2024/2/24 08:50:12">2024-02-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/APP%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/">APP高级使用技巧</a><span> / </span><a class="link-muted" href="/categories/APP%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/Surge/">Surge</a></span><span class="level-item">17 分钟读完 (大约2519个字)</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span> 次浏览</span></div></div><h1 class="title is-3 is-size-4-mobile">使用Surge规则脚本、快捷指令自动化生成专属规则集</h1><div class="content"><blockquote>
+<p>本文为<a target="_blank" rel="noopener" href="https://apps.apple.com/us/app/surge-4/id1442620678">Surge</a> APP规则系统中的高级使用方法，有一定的理解难度。</p>
+</blockquote>
+<p>不知道大家有没有想过，Github 上大佬们分享的大多都是通用规则集，并不一定适合自己，所以有时候就在想，除了特定应用程序的规则，<strong>国内域名</strong>和<strong>国外域名</strong>能不能按照自己的网络环境自动生成一份专属规则。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>我们可以使用 Surge 的脚本规则实现，由于 Surge 本身无法写入文件到本地，但我们可以借助系统的自带的快捷指令写入，所以我们基本的实现思路大致为：</p>
+<ul>
+<li><p>域名请求命中脚本规则</p>
+</li>
+<li><p>脚本规则缓存加工后的域名</p>
+</li>
+<li><p>快捷指令读取脚本规则缓存并写入规则集到本地</p>
+</li>
+</ul>
+<h2 id="脚本实现"><a href="#脚本实现" class="headerlink" title="脚本实现"></a>脚本实现</h2><p>该脚本已上传至 Github 仓库，链接：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">https://github.com/NobyDa/Script/blob/master/Rule-Storage/Rule-Storage.js<br></code></pre></td></tr></table></figure>
+
+<h3 id="工作流"><a href="#工作流" class="headerlink" title="工作流"></a>工作流</h3><p>简化后的脚本核心工作流：</p>
+<p><img src="/2024/02/24/Surge_Rule_Storage/Script-Workflow.png"></p>
+<p>为了避免生成太多无用规则，脚本会判断多级域名并有相应的处理。eTLD 即公共后缀列表，<strong>指的是Internet域名系统中的一部分域名</strong>，这部分域名在 eTLD 列表中定义。例如一个域名 <code>www.abc.com</code>，eTLD 列表内将包含 <code>com</code> 这个顶级域。</p>
+<p>脚本规则可以参照该 eTLD 列表缩减多级域名并生成域名后缀规则（DOMAIN-SUFFIX），但二级域名、非 eTLD 域名、完整 eTLD 域名只会生成域名规则（DOMAIN）</p>
+<hr>
+<h2 id="配置脚本"><a href="#配置脚本" class="headerlink" title="配置脚本"></a>配置脚本</h2><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>我的需求是生成<strong>国内域名</strong>和<strong>国外域名</strong>的规则集，我们首先配置 Surge 脚本，在 Surge 配置文件中的<code>[Script]</code>段落添加以下脚本，参数可以按照说明按需添加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs null">Save-Final-Rule = type=rule,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Rule-Storage/Rule-Storage.js,argument=region=global<br><br>Save-China-Rule = type=rule,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Rule-Storage/Rule-Storage.js,argument=region=china&amp;matched=1<br></code></pre></td></tr></table></figure>
+
+<h3 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h3><p>由于脚本设计之初考虑到脚本复用问题，我们需要配置参数才能正确运行</p>
+<ul>
+<li><p>区域参数：<code>region</code>，该参数为必须</p>
+</li>
+<li><p>匹配参数：<code>matched</code>，即指示脚本规则完成后是否匹配指定的策略，默认不匹配，输入<code>matched=1</code>即表示匹配</p>
+</li>
+<li><p>键值参数：<code>key</code>，持久化储存所使用的键值，默认为<code>Rule-Storage</code>，一般用户无需理会</p>
+</li>
+<li><p>白名单参数：<code>whitelist</code>，域名匹配白名单规则时，跳过生成域名后缀规则（DOMAIN-SUFFIX），该参数仅接受数组，例如<code>whitelist=[&quot;.mwcname.com&quot;,&quot;.cdn.&quot;]</code>，规则有三种写法：</p>
+<ul>
+<li><p>域名：<code>example.com</code></p>
+</li>
+<li><p>域名后缀：<code>.example.com</code></p>
+</li>
+<li><p>域名关键字：<code>.example.</code></p>
+</li>
+</ul>
+</li>
+<li><p>数量参数：<code>quantity</code>，一个域名运行脚本第x次才生成规则，默认为 10 次</p>
+</li>
+<li><p>间隔参数：<code>interval</code>，一个域名两次运行脚本的标记间隔，默认为 30 秒</p>
+</li>
+</ul>
+<p>除了区域参数为必要之外，其他参数都有默认值，需要注意的是脚本内已内置了部分<strong>跳过生成域名后缀</strong>的白名单规则，如果白名单参数存在，将会被参数覆盖。</p>
+<p>多参数使用 <code>&amp;</code> 连接，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">argument=region=global&amp;quantity=5&amp;interval=10<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="配置规则"><a href="#配置规则" class="headerlink" title="配置规则"></a>配置规则</h2><h3 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h3><p>要生成国内和国外规则，那么这个脚本规则必须放在FINAL规则前，规则的先后顺序非常重要，由于每个人使用的规则都有细微差别，所以这里我们展开讲讲。</p>
+<p>规则示例：</p>
+<p><img src="/2024/02/24/Surge_Rule_Storage/Rule-list.png"></p>
+<p>配置示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs null">RULE-SET,Rule/Foregn_Set.txt,🌎 Foregn,no-resolve,extended-matching<br><br>RULE-SET,Rule/Domestic_Set.txt,🇨🇳 Domestic,extended-matching<br><br>AND,((OR,((GEOIP,CN), (DOMAIN-SUFFIX,cn), (AND,((RULE-SET,https://raw.githubusercontent.com/NobyDa/Script/master/Rule-Storage/Include-Domain.txt), (SCRIPT,Save-Final-Rule))))), (OR,((NOT,((RULE-SET,https://raw.githubusercontent.com/NobyDa/Script/master/Rule-Storage/Include-Domain.txt))), (SCRIPT,Save-China-Rule)))),🇨🇳 Domestic<br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>Foregn_Set.txt</code> 和 <code>Domestic_Set.txt</code> 为快捷指令读取脚本规则缓存生成的本地规则集文件，稍后我们会讲到。规则顺序为</p>
+<ul>
+<li><p>国内规则集（生成）</p>
+</li>
+<li><p>国外规则集（生成）</p>
+</li>
+<li><p>逻辑规则，内含脚本规则</p>
+</li>
+</ul>
+<p>Surge 的规则系统在前面的规则匹配后，后面的规则将不会执行，所以我们以这个为基础写一个逻辑规则</p>
+<h3 id="工作流-1"><a href="#工作流-1" class="headerlink" title="工作流"></a>工作流</h3><p>以下为配置示例中的逻辑规则工作流：</p>
+<p><img src="/2024/02/24/Surge_Rule_Storage/Logical-Rules-Workflow.png"></p>
+<p>为了性能考虑避免IP域名经过脚本，以及实现区域判定，我们需要借助 GeoIP 规则、域名关键字规则、逻辑规则互相配合才能完成。</p>
+<p>逻辑规则中的子规则可以按需修改，比如去掉<code>DOMAIN-SUFFIX,cn</code>规则。逻辑规则基本概念可以在 <a target="_blank" rel="noopener" href="https://manual.nssurge.com/rule/logical-rule.html">Surge 文档</a>中找到</p>
+<h3 id="GEOIP"><a href="#GEOIP" class="headerlink" title="GEOIP"></a>GEOIP</h3><p>因为区域判断是基于GEOIP数据库，所以我们需要一份相对准确的数据库，这里推荐使用自己另外一个项目，自用了几年还不错。仓库地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">https://github.com/NobyDa/geoip<br></code></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h2 id="配置快捷指令"><a href="#配置快捷指令" class="headerlink" title="配置快捷指令"></a>配置快捷指令</h2><p>域名经过逻辑规则和脚本生成缓存规则后，我们可以写一个快捷指令提取 Surge 中的缓存规则并写入文件到本地。</p>
+<p>我们需要先配置 Surge 中自带的 HTTP API 功能，可以在<code>Surge -&gt; 更多设置 -&gt; HTTP API</code>中找到，设置端口和密码后，在安装快捷指令时填入即可。</p>
+<p>快捷指令安装链接：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">https://www.icloud.com/shortcuts/39c9a8720c9a49288ac1a2bf433da098<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，如果没有开启 Surge iCloud 同步将无法使用（生成的规则集储存在 iCloud 的 Surge 文件夹）</p>
+<p>快捷指令默认会把 <code>Foregn_Set.txt</code> 和 <code>Domestic_Set.txt</code> 规则集储存至 Surge 根目录的 Rule 文件夹，可以手动编辑快捷指令修改 <code>China &amp; Global</code>词典。</p>
+<p>词典内的<code>Key</code>即为 Surge 持久化规则缓存的读取键值（脚本内会根据脚本参数的<code>键值参数</code>和<code>区域参数</code>自动拼接读取键值，自用的是<code>Rule-Storage-china</code>和<code>Rule-Storage-global</code>）一般无需修改。</p>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>生成规则后我们可以使用快捷指令的自动化自动运行快捷指令，例如可以每天特定时间或打开 Surge 时运行快捷指令，这类自动化都可以<strong>关闭运行前询问</strong>。按自己的需求设置即可。</p>
+<p><img src="/2024/02/24/Surge_Rule_Storage/Shortcut.png"></p>
+<hr>
+<h2 id="事项"><a href="#事项" class="headerlink" title="事项"></a>事项</h2><p>这个脚本的初衷是为了解决规则系统的 DNS 查询问题，经常访问的国外域名可以在 FINAL 规则之前省去一次 DNS 查询以获得更好的体验，脚本经过多次迭代后基本已经没有太大问题。</p>
+<p>如果有小伙伴需要使用文章中的脚本规则，请务必注意调整自己所使用的通用规则，例如配置生成的规则后需要删除之前所使用的通用 China 或 Global 规则集，也需要禁用IP类规则集，最主要的是规则顺序，一些细节问题也要根据实际情况进行调整。所以只建议对 Surge 和规则有一定理解、动手能力强的小伙伴去折腾。</p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><ul>
+<li><p>由于是自动生成的规则，有时候需要手动调整生成后的规则，例如删除一些不需要被代理的域名。</p>
+</li>
+<li><p>由于国外规则集顺序在前，有时候会混进一些国内域名导致分流不符合预期，这里可以使用另外一个快捷指令移除国外规则集里跟国内规则集重复的规则。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">https://www.icloud.com/shortcuts/cf7e329cf84147ad90447cc7135b53e0<br></code></pre></td></tr></table></figure></li>
+<li><p>由于刚开始需要使用一段后才会生成规则，如果确认要使用，推荐短期内调整一下脚本参数的<code>数量参数</code>和<code>间隔参数</code> 以达到快速生成规则的目的。</p>
+</li>
+</ul>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>说起来也好久没有更新博客和脚本了，一方面是因为装源码的硬盘出了点小问题，索性就放抽屉吃灰了，另一方面也可能是自己对这类APP痛失了兴趣，没有足够的动力对开源社区做出贡献。</p>
+<p>事情起因可能是因为有一天突然意识到赞许的声音越来越多，以致于自己在网络上花的时间日益增多，进而疏忽了现实生活中的一些人和事。这引起了我对当下生活的一种深度思考。</p>
+<p>人嘛，总是会选择一种生活方式来构建自己生活的意义，每个年龄段的意义都会不尽相同。美好生活就是让自己过上喜欢的日子，这是我对美好生活的定义。这鼓励了我，所以我开始减少花在网络上的时间，给生活做减法。</p>
+<p>时间果然转瞬即逝，到了2024又是一个新的篇章，也挺久没有折腾 Surge 脚本了，为此分享给大家一个自用脚本。由于是按照自己需求写的所以不一定适合大众，有类似需求的小伙伴可以参考文章的思路的手动配置专属规则。</p>
+<p><em><strong>生命不息，折腾不止。</strong></em></p>
+<p><em><strong>以上</strong></em></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>使用Surge规则脚本、快捷指令自动化生成专属规则集</p><p><a href="https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/">https://nobyda.github.io/2024/02/24/Surge_Rule_Storage/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>NobyDa</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2024-02-24</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2024-02-24</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Surge/">Surge</a><a class="link-muted mr-2" rel="tag" href="/tags/JavaScript/">JavaScript</a></div><div class="sharethis-inline-share-buttons"></div><script src="https://platform-api.sharethis.com/js/sharethis.js#property=60bb78906cfa7d00118e7e9e&amp;product=inline-share-buttons" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/img/donates.jpg" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/07/29/Javascript-TOTP-algorithm/"><span class="level-item">适用于Surge &amp; QuantumultX的一次性密码生成脚本 (TOTP)</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "d1a62aa0ec83f3f154f8b89fddc4ed1e",
+            repo: "NobyDa.github.io",
+            owner: "NobyDa",
+            clientID: "84cc10757e7c7631cf71",
+            clientSecret: "095f8b47cbdb5b1ef38709e44e7186cd951362b9",
+            admin: ["NobyDa"],
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 20,
+            pagerDirection: "first",
+            
+            
+            enableHotKey: true,
+            language: "zh-CN",
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-3-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">目录</h3><ul class="menu-list"><li><a class="level is-mobile" href="#思路"><span class="level-left"><span class="level-item">1</span><span class="level-item">思路</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#脚本实现"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">脚本实现</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#工作流"><span class="level-left"><span class="level-item">1.1.1</span><span class="level-item">工作流</span></span></a></li></ul></li><li><a class="level is-mobile" href="#配置脚本"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">配置脚本</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#配置"><span class="level-left"><span class="level-item">1.2.1</span><span class="level-item">配置</span></span></a></li><li><a class="level is-mobile" href="#参数"><span class="level-left"><span class="level-item">1.2.2</span><span class="level-item">参数</span></span></a></li></ul></li><li><a class="level is-mobile" href="#配置规则"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">配置规则</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#配置-1"><span class="level-left"><span class="level-item">1.3.1</span><span class="level-item">配置</span></span></a></li><li><a class="level is-mobile" href="#工作流-1"><span class="level-left"><span class="level-item">1.3.2</span><span class="level-item">工作流</span></span></a></li><li><a class="level is-mobile" href="#GEOIP"><span class="level-left"><span class="level-item">1.3.3</span><span class="level-item">GEOIP</span></span></a></li></ul></li><li><a class="level is-mobile" href="#配置快捷指令"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">配置快捷指令</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#自动化"><span class="level-left"><span class="level-item">1.4.1</span><span class="level-item">自动化</span></span></a></li></ul></li><li><a class="level is-mobile" href="#事项"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">事项</span></span></a></li></ul></li><li><a class="level is-mobile" href="#后记"><span class="level-left"><span class="level-item">2</span><span class="level-item">后记</span></span></a></li></ul></div></div><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"></a><p class="is-size-7"><span id="busuanzi_container_site_uv">Visited by <span id="busuanzi_value_site_uv">0</span> users</span><br><span>&copy; 2024 NobyDa's Blog is</span> powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-CN");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
